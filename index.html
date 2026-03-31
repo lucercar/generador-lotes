@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Generador de Lotes</title>
+
+<style>
+
+body{
+font-family: Arial;
+background:#202124;
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.panel{
+background:#2f3136;
+padding:40px;
+border-radius:15px;
+width:520px;
+text-align:center;
+box-shadow:0 0 25px rgba(0,0,0,0.6);
+}
+
+h1{
+margin-bottom:25px;
+}
+
+.info{
+background:#3b3d42;
+padding:12px;
+border-radius:8px;
+margin:8px 0;
+font-size:18px;
+}
+
+.lote{
+margin-top:25px;
+font-size:42px;
+font-weight:bold;
+background:#00c853;
+color:black;
+padding:20px;
+border-radius:10px;
+}
+
+button{
+margin-top:20px;
+padding:12px 25px;
+font-size:18px;
+border:none;
+border-radius:8px;
+background:#2196f3;
+color:white;
+cursor:pointer;
+}
+
+button:hover{
+background:#1976d2;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="panel">
+
+<h1>Generador de Lote</h1>
+
+<div class="info" id="hora"></div>
+<div class="info" id="fechaProd"></div>
+<div class="info" id="vencimiento"></div>
+
+<div class="lote" id="lote"></div>
+
+<button onclick="generar()">Actualizar</button>
+
+</div>
+
+<script>
+
+const DIAS_VENCIMIENTO = 365
+
+function semanaISO(d){
+d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
+d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7))
+var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1))
+return Math.ceil((((d - yearStart) / 86400000) + 1)/7)
+}
+
+function generar(){
+
+const ahora = new Date()
+let fechaProd = new Date()
+
+if(ahora.getHours() < 6){
+fechaProd.setDate(fechaProd.getDate()-1)
+}
+
+const dias = ["G","A","B","C","D","E","F"]
+const diaLetra = dias[fechaProd.getDay()]
+
+const semana = String(semanaISO(fechaProd)).padStart(2,"0")
+
+const turno = (ahora.getHours() >= 18 || ahora.getHours() < 6) ? "N" : "M"
+
+const año = String(fechaProd.getFullYear()).slice(-1)
+
+const lote = año + semana + diaLetra + turno + "MER41"
+
+let venc = new Date(fechaProd)
+venc.setDate(venc.getDate() + DIAS_VENCIMIENTO)
+
+document.getElementById("hora").innerText =
+"Hora actual: " + ahora.toLocaleTimeString('es-ES',{hour12:false})
+
+document.getElementById("fechaProd").innerText =
+"Fecha producción: " + fechaProd.toLocaleDateString()
+
+document.getElementById("vencimiento").innerText =
+"Vencimiento: " + venc.toLocaleDateString()
+
+document.getElementById("lote").innerText = lote
+
+}
+
+generar()
+
+setInterval(generar,1000)
+
+</script>
+
+</body>
+</html>
